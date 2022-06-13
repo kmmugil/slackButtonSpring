@@ -30,7 +30,8 @@ public class HttpUtils {
 
     public static Map<String, String> getSlackOAuthHeaders() {
         Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        // Non-form content-types are the ones for which charset is recommended
+        headers.put("Content-Type", "application/x-www-form-urlencoded");
         return headers;
     }
 
@@ -62,14 +63,13 @@ public class HttpUtils {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 if(flag) flag = false;
                 else formEncodedString.append("&");
-                formEncodedString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                formEncodedString.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
                 formEncodedString.append("=");
                 formEncodedString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
             }
             return formEncodedString.toString();
         } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -89,7 +89,7 @@ public class HttpUtils {
         String response;
         try {
             logger.info("***url******" + url);
-//            logger.info("***body******" + body);
+            logger.info("***body******" + body);
 
             // establish connection
             URL u = new URL(url);

@@ -74,7 +74,7 @@ public class SlackServiceImpl implements SlackService {
             headers.put("Content-Length", String.valueOf(formEncodedPayload.length()));
             logger.debug(formEncodedPayload);
             logger.debug("Sending exchange request for access token ...");
-            String response = HttpUtils.post(Constants.SLACK_OAUTH_V2_ACCESS_URL, String.valueOf(payload), headers);
+            String response = HttpUtils.post(Constants.SLACK_OAUTH_V2_ACCESS_URL, formEncodedPayload, headers);
             logger.info("Response received for exchange request");
             return (ObjectNode) objectMapper.readTree(response);
         } catch (JsonProcessingException e) {
