@@ -64,15 +64,18 @@ public class SlackServiceImpl implements SlackService {
     public ObjectNode getAccessToken(String code) {
         try {
             logger.debug("Generating payload for OAuth exchange ...");
+            ObjectMapper objectMapper = new ObjectMapper();
             SlackOAuthExchangePayload payload = new SlackOAuthExchangePayload();
             payload.setCode(code);
             payload.setGrant_type(Constants.SLACK_GRANT_TYPE_INSTALL);
             logger.debug(String.valueOf(payload));
-            Map<String, String> headers = HttpUtils.getSlackCommonHeaders();
+            String formEncodedPayload = HttpUtils.getFormEncodedString(objectMapper.convertValue(payload, Map.class));
+            Map<String, String> headers = HttpUtils.getSlackOAuthHeaders();
+            headers.put("Content-Length", String.valueOf(formEncodedPayload.length()));
+            logger.debug(formEncodedPayload);
             logger.debug("Sending exchange request for access token ...");
             String response = HttpUtils.post(Constants.SLACK_OAUTH_V2_ACCESS_URL, String.valueOf(payload), headers);
             logger.info("Response received for exchange request");
-            ObjectMapper objectMapper = new ObjectMapper();
             return (ObjectNode) objectMapper.readTree(response);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage(), e);
@@ -91,7 +94,7 @@ public class SlackServiceImpl implements SlackService {
         try {
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
             logger.debug("Triggering incoming webhook ...");
-            String response = HttpUtils.post(url, String.valueOf(payload), HttpUtils.getSlackCommonHeaders());
+            String response = HttpUtils.post(url, String.valueOf(payload), HttpUtils.getCommonHeaders());
             logger.info("Response received from slack after triggering webhook.");
             if(response.equalsIgnoreCase("ok")) {
                 respNode.put("ok", true);

@@ -2,7 +2,6 @@ package com.kmmugil.slackbuttonspring.slack.dao;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.kmmugil.slackbuttonspring.utils.Constants;
 import org.springframework.beans.factory.annotation.Value;
 
 public class SlackOAuthExchangePayload {
@@ -54,16 +53,16 @@ public class SlackOAuthExchangePayload {
         return redirect_uri;
     }
 
+    public void setRedirect_uri(String redirect_uri) {
+        this.redirect_uri = redirect_uri;
+    }
+
     public String getGrant_type() {
         return grant_type;
     }
 
     public void setGrant_type(String grant_type) {
         this.grant_type = grant_type;
-    }
-
-    public void setRedirect_uri(String redirect_uri) {
-        this.redirect_uri = redirect_uri;
     }
 
     /**

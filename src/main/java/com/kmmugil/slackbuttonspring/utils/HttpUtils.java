@@ -1,14 +1,17 @@
 package com.kmmugil.slackbuttonspring.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +21,56 @@ public class HttpUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
-    public static Map<String, String> getSlackCommonHeaders() {
+    public static Map<String, String> getCommonHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json; charset=UTF-8");
         headers.put("Accept", "application/json");
         return headers;
+    }
+
+    public static Map<String, String> getSlackOAuthHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        return headers;
+    }
+
+    public static String getFormEncodedString(Object object) {
+        try {
+            StringBuilder formEncodedString = new StringBuilder();
+            Method[] methods = Object.class.getDeclaredMethods();
+            boolean flag = true;
+            for (Method method : methods) {
+                if(flag) flag = false;
+                else formEncodedString.append("&");
+                if(method.getName().startsWith("get")) {
+                    formEncodedString.append(method.getName().substring(3).toLowerCase());
+                    formEncodedString.append("=");
+                    formEncodedString.append(method.invoke(object));
+                }
+            }
+            return formEncodedString.toString();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+    
+    public static String getFormEncodedString(Map<String, String> map) {
+        try {
+            StringBuilder formEncodedString = new StringBuilder();
+            boolean flag = true;
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if(flag) flag = false;
+                else formEncodedString.append("&");
+                formEncodedString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                formEncodedString.append("=");
+                formEncodedString.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            }
+            return formEncodedString.toString();
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     public static String get(String url) {
