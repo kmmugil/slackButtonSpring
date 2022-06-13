@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController(value = "/api")
+@RestController(value = "Root Controller")
+@RequestMapping(value = "/api")
 public class RootController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -20,7 +22,7 @@ public class RootController {
         logger.debug("Entered root controller method ");
         ObjectNode respNode = JsonNodeFactory.instance.objectNode();
         respNode.put("status", HttpStatus.OK.value());
-        respNode.put("message", "Hello world ! | "+request.getRemoteAddr());
+        respNode.put("message", "Hello world! | "+request.getRemoteAddr());
         return ResponseEntity.ok(respNode);
     }
 }
