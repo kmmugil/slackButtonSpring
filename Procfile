@@ -1,1 +1,1 @@
-web: java -Dspring.profiles.active=dev ${JAVA_OPTS} -jar target/slackButtonSpring-1.0.1-SNAPSHOT.jar
+web: java -ea -Dspring.profiles.active=dev ${JAVA_OPTS} -jar target/slackButtonSpring-1.0.2.jar
