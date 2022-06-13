@@ -99,7 +99,6 @@ public class SlackServiceImpl implements SlackService {
                 respNode.put("error", response);
                 respNode.put("details", Constants.SLACK_INCOMING_WEBHOOKS_ERROR_MAP.get(respNode.get("error").textValue()));
                 logger.error("Error triggering incoming webhook! "+respNode.get("details"));
-                return null;
             }
             return respNode;
         } catch (Exception e) {

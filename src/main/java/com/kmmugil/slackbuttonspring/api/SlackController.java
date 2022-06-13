@@ -36,7 +36,7 @@ public class SlackController {
             "error") String error) {
         try {
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
-            logger.debug("Checking is user denied access ...");
+            logger.debug("Checking if user denied access ...");
             if(error != null && error.equalsIgnoreCase("access_denied")) {
                 logger.error("User denied request for OAuth permission, terminating slack integration ...");
                 respNode.put("status", HttpStatus.FORBIDDEN.value());
