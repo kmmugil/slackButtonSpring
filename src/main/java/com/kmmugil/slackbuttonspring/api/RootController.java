@@ -3,6 +3,8 @@ package com.kmmugil.slackbuttonspring.api;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.servlet.http.HttpServletRequest;
+
+import com.kmmugil.slackbuttonspring.utils.dto.DefaultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,6 @@ public class RootController {
     @GetMapping
     public ResponseEntity<?> root(HttpServletRequest request) {
         logger.debug("Entered root controller method ");
-        ObjectNode respNode = JsonNodeFactory.instance.objectNode();
-        respNode.put("status", HttpStatus.OK.value());
-        respNode.put("message", "Hello world! | "+request.getRemoteAddr());
-        return ResponseEntity.ok(respNode);
+        return ResponseEntity.ok(new DefaultResponse(HttpStatus.OK.value(), "Hello world! | "+request.getRemoteAddr()));
     }
 }

@@ -3,9 +3,11 @@ package com.kmmugil.slackbuttonspring.alarm.service;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kmmugil.slackbuttonspring.slack.service.SlackService;
+import com.kmmugil.slackbuttonspring.utils.dto.DefaultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,7 @@ public class AlarmServiceImpl implements AlarmService {
             logger.debug(respNode.toPrettyString());
         } catch(AssertionError e) {
             logger.error("INTERNAL_SERVER_ERROR");
-            return ResponseEntity.ok("INTERNAL_SERVER_ERROR");
+            return ResponseEntity.ok(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
         }
         return ResponseEntity.ok(respNode);
     }
