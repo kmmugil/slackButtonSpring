@@ -18,6 +18,8 @@ public class SlackOAuthExchangePayload {
     @Value("${slack.redirect.uri}")
     private String redirect_uri;
 
+    private String grant_type;
+
     public SlackOAuthExchangePayload() {
         this.client_id = System.getenv().get("SLACK_CLIENT_ID");
         this.client_secret = System.getenv().get("SLACK_CLIENT_SECRET");
@@ -52,6 +54,14 @@ public class SlackOAuthExchangePayload {
         return redirect_uri;
     }
 
+    public String getGrant_type() {
+        return grant_type;
+    }
+
+    public void setGrant_type(String grant_type) {
+        this.grant_type = grant_type;
+    }
+
     public void setRedirect_uri(String redirect_uri) {
         this.redirect_uri = redirect_uri;
     }
@@ -66,6 +76,7 @@ public class SlackOAuthExchangePayload {
         objectNode.put("client_secret", this.client_secret);
         objectNode.put("code", this.getCode());
         objectNode.put("redirect_uri", this.redirect_uri);
+        objectNode.put("grant_type", this.grant_type);
         return objectNode.toPrettyString();
     }
 }

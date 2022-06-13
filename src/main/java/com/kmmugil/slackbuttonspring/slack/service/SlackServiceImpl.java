@@ -66,6 +66,7 @@ public class SlackServiceImpl implements SlackService {
             logger.debug("Generating payload for OAuth exchange ...");
             SlackOAuthExchangePayload payload = new SlackOAuthExchangePayload();
             payload.setCode(code);
+            payload.setGrant_type(Constants.SLACK_GRANT_TYPE_INSTALL);
             logger.debug(String.valueOf(payload));
             Map<String, String> headers = HttpUtils.getSlackCommonHeaders();
             logger.debug("Sending exchange request for access token ...");

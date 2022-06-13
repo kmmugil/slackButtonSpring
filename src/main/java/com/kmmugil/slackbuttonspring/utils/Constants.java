@@ -11,6 +11,10 @@ public class Constants {
 
     public static final String SLACK_OAUTH_V2_ACCESS_URL = "https://slack.com/api/oauth.v2.access";
 
+    public static final String SLACK_GRANT_TYPE_REFRESH = "refresh_token";
+
+    public static final String SLACK_GRANT_TYPE_INSTALL = "authorization_code";
+
     public static Map<String, String> SLACK_OAUTH_ERROR_MAP = new HashMap<String, String>(){{
         put("invalid_grant_type", "Value passed for grant_type was invalid.");
         put("invalid_client_id", "Value passed for client_id was invalid.");
