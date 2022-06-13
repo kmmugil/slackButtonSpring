@@ -29,7 +29,7 @@ public class AlarmServiceImpl implements AlarmService {
         logger.debug("Triggering alarm with default payload ...");
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.put("text", "Hi :zap:");
-        ObjectNode respNode = slackService.triggerIncomingWebhook(System.getenv().get("SLACK_DEF_IW_URI")+"abc", payload);
+        ObjectNode respNode = slackService.triggerIncomingWebhook(System.getenv().get("SLACK_DEF_IW_URI"), payload);
         logger.info("Triggered default alarm.");
         try {
             assert respNode != null;
