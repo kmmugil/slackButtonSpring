@@ -180,7 +180,8 @@ public class SlackServiceImpl implements SlackService {
             String requestSignature = request.getHeader(Constants.SLACK_SIGNATURE_HEADER);
             String requestTimestamp = request.getHeader(Constants.SLACK_TIMESTAMP_HEADER);
             String data = this.version+":"+requestTimestamp+":"+requestBody;
-            return requestSignature.equals(Utils.hmacSHA256(data, signingSecret));
+            logger.debug(requestSignature);
+            return requestSignature.equals("v0="+Utils.hmacSHA256(data, signingSecret));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             logger.error(e.getMessage(), e);
             return false;
