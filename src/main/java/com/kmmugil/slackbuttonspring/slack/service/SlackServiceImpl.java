@@ -125,7 +125,7 @@ public class SlackServiceImpl implements SlackService {
      * @param request HttpServletRequest with request config info
      * @param response HttpServletResponse to be sent
      * Contains event payload with:
-     * token        - verification token for Slack app
+     * token        - verification token for Slack app (deprecated way of verifying origin, instead using slack headers with signing secret)
      * type         - denoting the type of event triggered
      * event        - JSON node containing event details
      * challenge    - for event API endpoint configuration
@@ -141,13 +141,11 @@ public class SlackServiceImpl implements SlackService {
             logger.debug("X-Slack-Request-Timestamp: "+request.getHeader(Constants.SLACK_TIMESTAMP_HEADER));
             logger.debug("X-OAuth-Scopes: "+request.getHeader(Constants.SLACK_OAUTH_SCOPES_HEADER));
             logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeader(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
-            if(!reqNode.get("token").textValue().equals(verificationToken)) {
-                logger.error("Invalid request, verification token mismatch. Terminating connection");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "event_thrown"));
-            }
+            assert this.verifySigningSecret(request);
+            logger.info("Event origin confirmed using signing secret ...");
             switch(reqNode.get("type").textValue()) {
                 case "url_verification":
-                    logger.info("Events configuration request received from slack. Returning request payload");
+                    logger.info("Events configuration request received from slack. Returning request payload ...");
                     logger.debug(reqNode.toPrettyString());
                     respNode.put("challenge", reqNode.get("challenge").textValue());
                     return ResponseEntity.ok(respNode);
@@ -161,7 +159,14 @@ public class SlackServiceImpl implements SlackService {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (AssertionError e) {
+            logger.error("Event origin cannot be verified, hence discarded ...");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "event_thrown"));
         }
+    }
+
+    private ObjectNode handleAppMention(JsonNode event) {
+        return null;
     }
 
 

@@ -15,6 +15,8 @@ public class Constants {
 
     public static final String SLACK_OAUTH_V2_ACCESS_URL = "https://slack.com/api/oauth.v2.access";
 
+    public static final String SLACK_APP_UNINSTALL_URL = "https://slack.com/api/apps.uninstall";
+
     public static final String SLACK_GRANT_TYPE_REFRESH = "refresh_token";
 
     public static final String SLACK_GRANT_TYPE_INSTALL = "authorization_code";
