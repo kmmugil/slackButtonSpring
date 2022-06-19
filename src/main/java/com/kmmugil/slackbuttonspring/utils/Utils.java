@@ -3,6 +3,7 @@ package com.kmmugil.slackbuttonspring.utils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.codec.Hex;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -20,6 +21,7 @@ public class Utils {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKey);
         byte[] hmacData = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        logger.debug("v0="+String.valueOf(Hex.encode(hmacData)));
         logger.debug(new String(Base64.encodeBase64URLSafe(hmacData), StandardCharsets.UTF_8));
         return new String(Base64.encodeBase64URLSafe(hmacData), StandardCharsets.UTF_8);
     }
