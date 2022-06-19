@@ -14,8 +14,8 @@ public interface SlackService {
 
     ObjectNode triggerIncomingWebhook(String url, ObjectNode payload);
 
-    ResponseEntity<?> handleEvents(String reqBody, HttpServletRequest request, HttpServletResponse response);
+    ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response);
 
-    boolean verifySigningSecret(HttpServletRequest request);
+    boolean verifySigningSecret(HttpServletRequest request, String requestBody);
 
 }

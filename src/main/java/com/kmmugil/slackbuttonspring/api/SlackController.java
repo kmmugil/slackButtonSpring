@@ -61,9 +61,9 @@ public class SlackController {
     }
 
     @PostMapping("/event")
-    public ResponseEntity<?> slackEventReceiver(@RequestBody String reqBody, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> slackEventReceiver(@RequestBody String requestBody, HttpServletRequest request, HttpServletResponse response) {
         logger.info("Event received from slack ...");
-        return slackService.handleEvents(reqBody, request, response);
+        return slackService.handleEvents(requestBody, request, response);
     }
 
 }

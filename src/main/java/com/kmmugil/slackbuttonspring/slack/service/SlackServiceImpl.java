@@ -121,7 +121,7 @@ public class SlackServiceImpl implements SlackService {
 
     /**
      * Service method to handle event callbacks from slack
-     * @param reqBody Request body - couldn't retrieve through HttpServletRequest since getInputStream() had already been called for the request
+     * @param requestBody Request body - couldn't retrieve through HttpServletRequest since getInputStream() had already been called for the request
      * @param request HttpServletRequest with request config info
      * @param response HttpServletResponse to be sent
      * Contains event payload with:
@@ -133,15 +133,15 @@ public class SlackServiceImpl implements SlackService {
      * Return challenge on configuration and appropriate 201 response if accepted / 400+ response if invalid request
      */
     @Override
-    public ResponseEntity<?> handleEvents(String reqBody, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response) {
         try {
-            JsonNode reqNode = new ObjectMapper().readTree(reqBody);
+            JsonNode reqNode = new ObjectMapper().readTree(requestBody);
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
             logger.debug("X-Slack-Signature: "+request.getHeader(Constants.SLACK_SIGNATURE_HEADER));
             logger.debug("X-Slack-Request-Timestamp: "+request.getHeader(Constants.SLACK_TIMESTAMP_HEADER));
             logger.debug("X-OAuth-Scopes: "+request.getHeader(Constants.SLACK_OAUTH_SCOPES_HEADER));
             logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeader(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
-            assert this.verifySigningSecret(request);
+            assert this.verifySigningSecret(request, requestBody);
             logger.info("Event origin confirmed using signing secret ...");
             switch(reqNode.get("type").textValue()) {
                 case "url_verification":
@@ -175,14 +175,13 @@ public class SlackServiceImpl implements SlackService {
      * @return Boolean true/false denoting the validity
      */
     @Override
-    public boolean verifySigningSecret(HttpServletRequest request) {
+    public boolean verifySigningSecret(HttpServletRequest request, String requestBody) {
         try {
             String requestSignature = request.getHeader(Constants.SLACK_SIGNATURE_HEADER);
             String requestTimestamp = request.getHeader(Constants.SLACK_TIMESTAMP_HEADER);
-            String requestBody = request.getReader().toString();
             String data = this.version+":"+requestTimestamp+":"+requestBody;
             return requestSignature.equals(Utils.hmacSHA256(data, signingSecret));
-        } catch (IOException | NoSuchAlgorithmException |InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             logger.error(e.getMessage(), e);
             return false;
         }
