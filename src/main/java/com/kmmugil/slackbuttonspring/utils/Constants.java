@@ -9,6 +9,10 @@ public class Constants {
 
     public static final String SLACK_TIMESTAMP_HEADER = "X-Slack-Request-Timestamp";
 
+    public static final String SLACK_OAUTH_SCOPES_HEADER = "X-OAuth-Scopes";
+
+    public static final String SLACK_ACCEPTED_OAUTH_SCOPES_HEADER = "X-Accepted-OAuth-Scopes";
+
     public static final String SLACK_OAUTH_V2_ACCESS_URL = "https://slack.com/api/oauth.v2.access";
 
     public static final String SLACK_GRANT_TYPE_REFRESH = "refresh_token";

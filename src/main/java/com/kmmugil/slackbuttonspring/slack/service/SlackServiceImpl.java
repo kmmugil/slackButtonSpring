@@ -1,6 +1,8 @@
 package com.kmmugil.slackbuttonspring.slack.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,6 +10,7 @@ import com.kmmugil.slackbuttonspring.slack.dao.SlackOAuthExchangePayload;
 import com.kmmugil.slackbuttonspring.utils.Constants;
 import com.kmmugil.slackbuttonspring.utils.HttpUtils;
 import com.kmmugil.slackbuttonspring.utils.Utils;
+import com.kmmugil.slackbuttonspring.utils.dto.DefaultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SlackServiceImpl implements SlackService {
@@ -27,7 +32,10 @@ public class SlackServiceImpl implements SlackService {
     @Value("${slack.signing.secret}")
     private String signingSecret;
 
-//    @Value("${slack.version}")
+    @Value("${slack.verification.token}")
+    private String verificationToken;
+
+    @Value("${slack.version}")
     private final String version = "v0";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -111,6 +119,50 @@ public class SlackServiceImpl implements SlackService {
         }
     }
 
+    /**
+     * Service method to handle event callbacks from slack
+     * @param reqBody Request body - couldn't retrieve through HttpServletRequest since getInputStream() had already been called for the request
+     * @param request HttpServletRequest with request config info
+     * @param response HttpServletResponse to be sent
+     * Contains event payload with:
+     * token        - verification token for Slack app
+     * type         - denoting the type of event triggered
+     * event        - JSON node containing event details
+     * challenge    - for event API endpoint configuration
+     * @return
+     * Return challenge on configuration and appropriate 201 response if accepted / 400+ response if invalid request
+     */
+    @Override
+    public ResponseEntity<?> handleEvents(String reqBody, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            JsonNode reqNode = new ObjectMapper().readTree(reqBody);
+            ObjectNode respNode = JsonNodeFactory.instance.objectNode();
+            logger.debug("X-Slack-Signature: "+request.getHeaders(Constants.SLACK_SIGNATURE_HEADER));
+            logger.debug("X-Slack-Request-Timestamp: "+request.getHeaders(Constants.SLACK_TIMESTAMP_HEADER));
+            logger.debug("X-OAuth-Scopes: "+request.getHeaders(Constants.SLACK_OAUTH_SCOPES_HEADER));
+            logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeaders(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
+            if(!reqNode.get("token").textValue().equals(verificationToken)) {
+                logger.error("Invalid request, verification token mismatch. Terminating connection");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "event_thrown"));
+            }
+            switch(reqNode.get("type").textValue()) {
+                case "url_verification":
+                    logger.info("Events configuration request received from slack. Returning request payload");
+                    logger.debug(reqNode.toPrettyString());
+                    respNode.put("challenge", reqNode.get("challenge").textValue());
+                    return ResponseEntity.ok(respNode);
+                case "event_callback":
+                    logger.debug(reqNode.toPrettyString());
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
+                default:
+                    logger.debug(reqNode.toPrettyString());
+                    return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_ignored"));
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 
     /**

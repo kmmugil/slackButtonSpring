@@ -11,6 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController(value = "SlackController")
 @RequestMapping(value = "/api/slack")
 public class SlackController {
@@ -57,9 +61,9 @@ public class SlackController {
     }
 
     @PostMapping("/event")
-    public ResponseEntity<?> slackEventReceiver(@RequestBody String reqBody) {
-        logger.info("Event Received from slack ...");
-        return ResponseEntity.ok(reqBody);
+    public ResponseEntity<?> slackEventReceiver(@RequestBody String reqBody, HttpServletRequest request, HttpServletResponse response) {
+        logger.info("Event received from slack ...");
+        return slackService.handleEvents(reqBody, request, response);
     }
 
 }
