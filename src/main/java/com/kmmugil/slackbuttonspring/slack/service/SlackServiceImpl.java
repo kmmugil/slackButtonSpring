@@ -137,10 +137,10 @@ public class SlackServiceImpl implements SlackService {
         try {
             JsonNode reqNode = new ObjectMapper().readTree(reqBody);
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
-            logger.debug("X-Slack-Signature: "+request.getHeaders(Constants.SLACK_SIGNATURE_HEADER));
-            logger.debug("X-Slack-Request-Timestamp: "+request.getHeaders(Constants.SLACK_TIMESTAMP_HEADER));
-            logger.debug("X-OAuth-Scopes: "+request.getHeaders(Constants.SLACK_OAUTH_SCOPES_HEADER));
-            logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeaders(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
+            logger.debug("X-Slack-Signature: "+request.getHeader(Constants.SLACK_SIGNATURE_HEADER));
+            logger.debug("X-Slack-Request-Timestamp: "+request.getHeader(Constants.SLACK_TIMESTAMP_HEADER));
+            logger.debug("X-OAuth-Scopes: "+request.getHeader(Constants.SLACK_OAUTH_SCOPES_HEADER));
+            logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeader(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
             if(!reqNode.get("token").textValue().equals(verificationToken)) {
                 logger.error("Invalid request, verification token mismatch. Terminating connection");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "event_thrown"));
