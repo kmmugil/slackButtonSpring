@@ -137,10 +137,6 @@ public class SlackServiceImpl implements SlackService {
         try {
             JsonNode reqNode = new ObjectMapper().readTree(requestBody);
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
-            logger.debug("X-Slack-Signature: "+request.getHeader(Constants.SLACK_SIGNATURE_HEADER));
-            logger.debug("X-Slack-Request-Timestamp: "+request.getHeader(Constants.SLACK_TIMESTAMP_HEADER));
-            logger.debug("X-OAuth-Scopes: "+request.getHeader(Constants.SLACK_OAUTH_SCOPES_HEADER));
-            logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeader(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
             assert this.verifySigningSecret(request, requestBody);
             logger.info("Event origin confirmed using signing secret ...");
             switch(reqNode.get("type").textValue()) {
@@ -180,7 +176,10 @@ public class SlackServiceImpl implements SlackService {
             String requestSignature = request.getHeader(Constants.SLACK_SIGNATURE_HEADER);
             String requestTimestamp = request.getHeader(Constants.SLACK_TIMESTAMP_HEADER);
             String data = this.version+":"+requestTimestamp+":"+requestBody;
-            logger.debug(requestSignature);
+            if ((System.currentTimeMillis() - Long.parseLong(requestTimestamp)) > 5*60) {
+                logger.error("Chance of replay attack, terminating connection ...");
+                return false;
+            }
             return requestSignature.equals("v0="+Utils.hmacSHA256(data, this.signingSecret));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             logger.error(e.getMessage(), e);

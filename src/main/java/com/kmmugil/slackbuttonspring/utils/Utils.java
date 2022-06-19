@@ -21,9 +21,8 @@ public class Utils {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKey);
         byte[] hmacData = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        logger.debug("v0="+String.valueOf(Hex.encode(hmacData)));
-        logger.debug(new String(Base64.encodeBase64URLSafe(hmacData), StandardCharsets.UTF_8));
-        return new String(Base64.encodeBase64URLSafe(hmacData), StandardCharsets.UTF_8);
+        logger.debug("HexDigest of Hash: "+String.valueOf(Hex.encode(hmacData)));
+        return String.valueOf(Hex.encode(hmacData));
     }
 
 }
