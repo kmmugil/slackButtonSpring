@@ -180,7 +180,7 @@ public class SlackServiceImpl implements SlackService {
             String requestSignature = request.getHeader(Constants.SLACK_SIGNATURE_HEADER);
             String requestTimestamp = request.getHeader(Constants.SLACK_TIMESTAMP_HEADER);
             String data = this.version+":"+requestTimestamp+":"+requestBody;
-            if (Math.abs(System.currentTimeMillis() - Long.parseLong(requestTimestamp)) > 5*60) {
+            if (Math.abs(System.currentTimeMillis()/1000 - Long.parseLong(requestTimestamp)) > 5*60) {
                 logger.error("Chance of replay attack, terminating connection ...");
                 return false;
             }
