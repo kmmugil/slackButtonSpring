@@ -57,15 +57,9 @@ public class SlackController {
     }
 
     @PostMapping("/event")
-    public ResponseEntity<?> slackEventReceiver(@RequestParam(name = "challenge", required = false) String challenge) {
+    public ResponseEntity<?> slackEventReceiver(@RequestBody String reqBody) {
         logger.info("Event Received from slack ...");
-        return ResponseEntity.ok(challenge);
-    }
-
-    @GetMapping("/event")
-    public ResponseEntity<?> slackEventReceiverConfig(@RequestParam(name = "challenge", required = false) String challenge) {
-        logger.info("Events config request received from slack ...");
-        return ResponseEntity.ok(challenge);
+        return ResponseEntity.ok(reqBody);
     }
 
 }
