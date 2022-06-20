@@ -14,7 +14,7 @@ public class TextObject extends ContextObject {
     /**
      * This field can only be used when the type of the textElement object is plain_text
      */
-//    @JsonIgnore
+    @JsonIgnore
     private Boolean emoji;
 
     @JsonIgnore

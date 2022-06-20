@@ -59,7 +59,7 @@ public class AlarmServiceImpl implements AlarmService {
             payloadNode.remove("channel");
             logger.debug(payloadNode.toPrettyString());
             ObjectNode respNode = slackService.triggerIncomingWebhook(System.getenv().get("SLACK_DEF_IW_URI"), payloadNode);
-            logger.info("Triggered default alarm.");
+            logger.info("Triggered CPU exceeding threshold alert.");
             try {
                 assert respNode != null;
                 logger.debug(respNode.toPrettyString());
