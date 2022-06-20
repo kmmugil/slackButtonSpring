@@ -28,4 +28,10 @@ public class AlarmController {
         return this.alarmService.triggerDefaultAlarm();
     }
 
+    @GetMapping("/trigger/cpu")
+    public ResponseEntity<?> triggerProcessorAlarm() {
+        logger.debug("Request triggering default processor alarm");
+        return this.alarmService.triggerProcessorAlarm("100%", "52%", "5m", "RockyLinux8-5-SCPU-1GB-MAD1-1", "192.168.1.1");
+    }
+
 }

@@ -135,7 +135,7 @@ public class SlackServiceImpl implements SlackService {
     @Override
     public ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response) {
         try {
-            JsonNode reqNode = new ObjectMapper().readTree(requestBody);
+            JsonNode requestNode = new ObjectMapper().readTree(requestBody);
             ObjectNode respNode = JsonNodeFactory.instance.objectNode();
             logger.debug("X-Slack-Signature: "+request.getHeader(Constants.SLACK_SIGNATURE_HEADER));
             logger.debug("X-Slack-Request-Timestamp: "+request.getHeader(Constants.SLACK_TIMESTAMP_HEADER));
@@ -143,17 +143,28 @@ public class SlackServiceImpl implements SlackService {
             logger.debug("X-Accepted-OAuth-Scopes: "+request.getHeader(Constants.SLACK_ACCEPTED_OAUTH_SCOPES_HEADER));
             assert this.verifySigningSecret(request, requestBody);
             logger.info("Event origin confirmed using signing secret ...");
-            switch(reqNode.get("type").textValue()) {
+            switch(requestNode.get("type").textValue()) {
                 case "url_verification":
                     logger.info("Events configuration request received from slack. Returning request payload ...");
-                    logger.debug(reqNode.toPrettyString());
-                    respNode.put("challenge", reqNode.get("challenge").textValue());
+                    logger.debug(requestNode.toPrettyString());
+                    respNode.put("challenge", requestNode.get("challenge").textValue());
                     return ResponseEntity.ok(respNode);
                 case "event_callback":
-                    logger.debug(reqNode.toPrettyString());
+                    logger.debug(requestNode.toPrettyString());
+                    switch(requestNode.get("event").textValue()) {
+                        case "app_mention":
+                            logger.info("Event triggered: app_mention ...");
+                            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
+                        case "tokens_revoked":
+                            logger.info("Event triggered: tokens_revoked ... triggering repo cleanup");
+                            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
+                        case "app_uninstalled":
+                            logger.info("Event triggered: app_uninstalled ... triggering repo cleanup");
+                            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
+                    }
                     return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
                 default:
-                    logger.debug(reqNode.toPrettyString());
+                    logger.debug(requestNode.toPrettyString());
                     return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_ignored"));
             }
         } catch (IOException e) {
@@ -163,10 +174,6 @@ public class SlackServiceImpl implements SlackService {
             logger.error("Event origin cannot be verified, hence discarded ...");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "event_thrown"));
         }
-    }
-
-    private ObjectNode handleAppMention(JsonNode event) {
-        return null;
     }
 
 

@@ -1,5 +1,6 @@
 package com.kmmugil.slackbuttonspring.slack.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +16,8 @@ public interface SlackService {
     ObjectNode triggerIncomingWebhook(String url, ObjectNode payload);
 
     ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response);
+
+//    JsonNode sendMessageAsBot(String channel, String workspace, ObjectNode payload);
 
     boolean verifySigningSecret(HttpServletRequest request, String requestBody);
 

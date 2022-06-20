@@ -21,6 +21,20 @@ public class Constants {
 
     public static final String SLACK_GRANT_TYPE_INSTALL = "authorization_code";
 
+    public static final String SLACK_CPU_ALERT_HEADER = ":rotating_light: *Monitor triggered: CPU is running high* \nCPU Utilization Percent is currently at &curr_percent&, " +
+            "above setting of &threshold_percent& for the last &time&";
+
+    public static final String SLACK_EDIT_MONITOR_LINK = "https://idrivecompute.com/app/settings-main";
+
+    public static final String SLACK_INSTANCE_ALERTS_LINK = "https://idrivecompute.com/app/index";
+
+    public static final String SLACK_IDRIVE_IMG_LINK = "https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/99f03878-7288-4834-be63-18908e02beb6.png?auto=format&size=150";
+
+    public static final HashMap<String, String> colorMap = new HashMap<String, String>() {{
+        put("danger", "#FF0000");
+        put("compute", "#0071BC");
+    }};
+
     public static Map<String, String> SLACK_OAUTH_ERROR_MAP = new HashMap<String, String>(){{
         put("invalid_grant_type", "Value passed for grant_type was invalid.");
         put("invalid_client_id", "Value passed for client_id was invalid.");
