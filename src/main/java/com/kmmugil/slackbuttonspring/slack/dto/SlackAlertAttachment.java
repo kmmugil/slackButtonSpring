@@ -24,7 +24,7 @@ public class SlackAlertAttachment extends MessageAttachment {
                 add(new TextObject(TextType.mrkdwn, ipAddress));
         }};
         SectionBlock sectionBlock = new SectionBlock(textObject, textFields);
-        sectionBlock.setAccessory(new ImageObject(Constants.SLACK_IDRIVE_IMG_LINK, "iDrive"));
+        sectionBlock.setAccessory(new ImageObject("https://cdn-icons-png.flaticon.com/512/167/167482.pngUpdat", "iDrive"));
         ContextBlock contextBlock = new ContextBlock();
         contextBlock.insertTextObject(TextType.mrkdwn, "<"+Constants.SLACK_EDIT_MONITOR_LINK+"|Edit monitor settings>");
         Attachment attachment = new Attachment(color);
