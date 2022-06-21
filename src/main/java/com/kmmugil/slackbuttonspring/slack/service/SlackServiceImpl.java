@@ -109,7 +109,7 @@ public class SlackServiceImpl implements SlackService {
      * Service method to post messages using incoming-webhook URL to a Slack channel
      * @param url The incoming webhook url received during the standard OAuth install flow
      * @param payload The JSON payload to be used for posting the message in the specific channel and workspace the user has installed the app
-     * @return The response returned from slack parsed using JSON object mapper
+     * @return Response returned from slack parsed using JSON object mapper
      */
     @Override
     public ObjectNode triggerIncomingWebhook(String url, ObjectNode payload) {
@@ -243,6 +243,10 @@ public class SlackServiceImpl implements SlackService {
         }
     }
 
+    /**
+     * Service method to uninstall Slack app from the workspace & channel the corresponding bot token is associated with
+     * @return Response returned from slack converted to JSON node
+     */
     @Override
     public ObjectNode appUninstall() {
         try {

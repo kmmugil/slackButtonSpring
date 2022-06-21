@@ -17,11 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController(value = "SlackController")
 @RequestMapping(value = "/api/slack")
@@ -75,7 +72,7 @@ public class SlackController {
     }
 
     @GetMapping("/post/message/default")
-    public ResponseEntity<?> slackPostDefaultMessage(@RequestParam(name = "text") String text) throws JsonProcessingException {
+    public ResponseEntity<?> slackPostDefaultMessage(@RequestParam(name = "text", required = false) String text) throws JsonProcessingException {
         logger.debug("Request to trigger action to post default message to slack channel received ...");
         SectionBlock sectionBlock = new SectionBlock(new TextObject(TextType.mrkdwn, "> Hello :zap:"));
         Message message = new Message("C03K4Q3E1S9", text);
