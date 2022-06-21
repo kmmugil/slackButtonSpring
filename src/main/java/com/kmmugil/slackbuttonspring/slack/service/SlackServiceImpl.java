@@ -195,7 +195,7 @@ public class SlackServiceImpl implements SlackService {
                     return ResponseEntity.ok(respNode);
                 case "event_callback":
                     logger.debug(requestNode.toPrettyString());
-                    switch(requestNode.get("event").textValue()) {
+                    switch(requestNode.get("event").get("type").textValue()) {
                         case "app_mention":
                             logger.info("Event triggered: app_mention ...");
                             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new DefaultResponse(HttpStatus.ACCEPTED.value(), "event_handled"));
