@@ -2,6 +2,7 @@ package com.kmmugil.slackbuttonspring.slack.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -23,10 +24,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class SlackServiceImpl implements SlackService {
+
+    @Value("${slack.client.id}")
+    private String client_id;
+
+    @Value("${slack.client.secret}")
+    private String client_secret;
 
     @Value("${slack.signing.secret}")
     private String signingSecret;
@@ -46,10 +54,10 @@ public class SlackServiceImpl implements SlackService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     /**
-    * Handle successful sign-in or error response from Slack
-    * @param code The code param returned via the OAuth callback
-    * @return Redirect to proper UI endpoint ... but right now just send a default alert to incoming webhook URI
-    */
+     * Handle successful sign-in or error response from Slack
+     * @param code The code param returned via the OAuth callback
+     * @return Redirect to proper UI endpoint ... but right now just send a default alert to incoming webhook URI
+     */
     @Override
     public ResponseEntity<?> handleOAuthFlow(String code) {
         ObjectNode respNode;
@@ -120,7 +128,7 @@ public class SlackServiceImpl implements SlackService {
             }
             return respNode;
         } catch (Exception e) {
-            logger.error("Error triggering incoming webhook! 500");
+            logger.error("Error while triggering incoming webhook! 500");
             throw new RuntimeException(e);
         }
     }
@@ -140,7 +148,7 @@ public class SlackServiceImpl implements SlackService {
             logger.debug(payload.toPrettyString());
             String token = asUser ? this.clientToken : this.botToken;
             Map<String, String> headers = HttpUtils.getCommonHeaders();
-            headers.put("Authorization", "Bearer "+token);
+            headers.put("Authorization", "Bearer " + token);
             String response = HttpUtils.post(Constants.SLACK_POST_MESSAGE_URL, String.valueOf(payload), headers);
             logger.info("Response received from slack after posting message");
             respNode = (ObjectNode) new ObjectMapper().readTree(response);
@@ -232,6 +240,31 @@ public class SlackServiceImpl implements SlackService {
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             logger.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    @Override
+    public ObjectNode appUninstall() {
+        try {
+            logger.debug("Triggering app.uninstall bot action in slack ...");
+            Map<String, String> payloadMap = new HashMap<String, String>() {{
+                put("client_id", client_id);
+                put("client_secret", client_secret);
+            }};
+            String formEncodedPayload = HttpUtils.getFormEncodedString(payloadMap);
+            Map<String, String> headers = HttpUtils.getSlackOAuthHeaders();
+            headers.put("Authorization", "Bearer " + this.botToken);
+            String response = HttpUtils.get(Constants.SLACK_APP_UNINSTALL_URL+"?"+formEncodedPayload, headers);
+            logger.info("Response received from slack after triggering app.uninstall");
+            ObjectNode respNode = (ObjectNode) new ObjectMapper().readTree(response);
+            if(!respNode.get("ok").booleanValue()) {
+                logger.error("Failed to uninstall app! "+respNode.get("error"));
+                respNode.put("details", Constants.SLACK_OAUTH_ERROR_MAP.get(respNode.get("error").textValue()));
+            }
+            return respNode;
+        } catch (JsonProcessingException e) {
+            logger.error("Error while uninstalling app! 500");
+            throw new RuntimeException(e);
         }
     }
 }

@@ -19,8 +19,8 @@ public interface SlackService {
 
     ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response);
 
-//    JsonNode sendMessageAsBot(String channel, String workspace, ObjectNode payload);
-
     boolean verifySigningSecret(HttpServletRequest request, String requestBody);
+
+    ObjectNode appUninstall();
 
 }

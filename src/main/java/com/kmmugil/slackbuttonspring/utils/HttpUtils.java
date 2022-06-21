@@ -55,7 +55,7 @@ public class HttpUtils {
             return null;
         }
     }
-    
+
     public static String getFormEncodedString(Map<String, String> map) {
         try {
             StringBuilder formEncodedString = new StringBuilder();
@@ -78,7 +78,7 @@ public class HttpUtils {
     }
 
     public static String get(String url, Map<String, String> headers) {
-        return null;
+        return fetch("GET", url, null, headers);
     }
 
     public static String post(String url, String body, Map<String, String> headers) {
