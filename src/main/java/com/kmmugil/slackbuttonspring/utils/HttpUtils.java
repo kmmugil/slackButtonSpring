@@ -78,7 +78,7 @@ public class HttpUtils {
     }
 
     public static String get(String url, Map<String, String> headers) {
-        return null;
+        return fetch("GET", url, null, headers);
     }
 
     public static String post(String url, String body, Map<String, String> headers) {

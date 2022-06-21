@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kmmugil.slackbuttonspring.slack.msgUtils.*;
 import com.kmmugil.slackbuttonspring.slack.msgUtils.enums.TextType;
 import com.kmmugil.slackbuttonspring.slack.service.SlackService;
+import com.kmmugil.slackbuttonspring.utils.dto.DefaultResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class SlackController {
 
     @GetMapping("/post/message/default")
     public ResponseEntity<?> slackPostDefaultMessage(@RequestParam(name = "text") String text) throws JsonProcessingException {
-        logger.debug("Request to trigger action to post default message to slack channel received");
+        logger.debug("Request to trigger action to post default message to slack channel received ...");
         SectionBlock sectionBlock = new SectionBlock(new TextObject(TextType.mrkdwn, "> Hello :zap:"));
         Message message = new Message("C03K4Q3E1S9", text);
         message.createBlocks();
@@ -85,6 +86,18 @@ public class SlackController {
         ObjectNode payload = (ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(message));
         ObjectNode respNode = this.slackService.postMessage(payload, false);
         return ResponseEntity.status(HttpStatus.OK).body(respNode);
+    }
+
+    @GetMapping("/uninstall")
+    public ResponseEntity<?> slackAppUninstall() {
+        try {
+            logger.debug("Request to trigger action to uninstall app received ...");
+            ObjectNode respNode = this.slackService.appUninstall();
+            return ResponseEntity.ok(respNode);
+        } catch(RuntimeException e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
+        }
     }
 
 }
