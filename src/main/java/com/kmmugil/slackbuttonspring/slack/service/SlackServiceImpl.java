@@ -1,6 +1,7 @@
 package com.kmmugil.slackbuttonspring.slack.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -82,7 +83,7 @@ public class SlackServiceImpl implements SlackService {
             payload.setCode(code);
             payload.setGrant_type(Constants.SLACK_GRANT_TYPE_INSTALL);
             logger.debug(String.valueOf(payload));
-            String formEncodedPayload = HttpUtils.getFormEncodedString(objectMapper.convertValue(payload, Map.class));
+            String formEncodedPayload = HttpUtils.getFormEncodedString(objectMapper.convertValue(payload, new TypeReference<Map<String, String>>(){}));
             Map<String, String> headers = HttpUtils.getSlackOAuthHeaders();
             headers.put("Content-Length", String.valueOf(formEncodedPayload.length()));
             logger.debug(formEncodedPayload);
