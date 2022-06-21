@@ -7,10 +7,10 @@ import com.kmmugil.slackbuttonspring.utils.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlackAlertAttachment extends MessageAttachment {
+public class SlackAlert extends Message {
 
-    public SlackAlertAttachment(String channel) {
-        super(channel);
+    public SlackAlert(String channel, String text) {
+        super(channel, text);
     }
 
     public void composeProcessorAlert(String curr_percent, String threshold_percent, String time, String instanceName, String ipAddress) {
@@ -24,12 +24,13 @@ public class SlackAlertAttachment extends MessageAttachment {
                 add(new TextObject(TextType.mrkdwn, ipAddress));
         }};
         SectionBlock sectionBlock = new SectionBlock(textObject, textFields);
-        sectionBlock.setAccessory(new ImageObject("https://cdn-icons-png.flaticon.com/512/167/167482.pngUpdat", "iDrive"));
+        sectionBlock.setAccessory(new ImageObject("https://cdn-icons-png.flaticon.com/512/167/167482.png", "CPU"));
         ContextBlock contextBlock = new ContextBlock();
         contextBlock.insertTextObject(TextType.mrkdwn, "<"+Constants.SLACK_EDIT_MONITOR_LINK+"|Edit monitor settings>");
         Attachment attachment = new Attachment(color);
         attachment.insertBlock(sectionBlock);
         attachment.insertBlock(contextBlock);
+        this.createAttachments();
         this.insertAttachment(attachment);
     }
 

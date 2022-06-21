@@ -1,7 +1,6 @@
 package com.kmmugil.slackbuttonspring.slack.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class SlackServiceImpl implements SlackService {
@@ -37,6 +35,12 @@ public class SlackServiceImpl implements SlackService {
 
     @Value("${slack.version}")
     private final String version = "v0";
+
+    @Value("${slack.bot.oauth.token}")
+    private String botToken;
+
+    @Value("${slack.client.oauth.token}")
+    private String clientToken;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -65,6 +69,7 @@ public class SlackServiceImpl implements SlackService {
     }
 
     /**
+     * Utility method to send an HTTP request to slack exchanging OAuth payload for access token
      * @param code The code param returned via the OAuth callback
      * @return Successful Sign in with Slack response or Error response
      */
@@ -86,13 +91,13 @@ public class SlackServiceImpl implements SlackService {
             logger.info("Response received for exchange request");
             return (ObjectNode) objectMapper.readTree(response);
         } catch (JsonProcessingException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Error while obtaining access token from slack OAuth exchange ...");
             throw new RuntimeException(e);
         }
     }
 
     /**
-     *
+     * Service method to post messages using incoming-webhook URL to a Slack channel
      * @param url The incoming webhook url received during the standard OAuth install flow
      * @param payload The JSON payload to be used for posting the message in the specific channel and workspace the user has installed the app
      * @return The response returned from slack parsed using JSON object mapper
@@ -110,12 +115,42 @@ public class SlackServiceImpl implements SlackService {
                 respNode.put("ok", false);
                 respNode.put("error", response);
                 respNode.put("details", Constants.SLACK_INCOMING_WEBHOOKS_ERROR_MAP.get(respNode.get("error").textValue()));
-                logger.error("Error triggering incoming webhook! "+respNode.get("details"));
+                logger.error("Error triggering incoming webhook! "+respNode.get("error"));
             }
             return respNode;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return null;
+            logger.error("Error triggering incoming webhook! 500");
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Service method to post messages to a Slack channel
+     * Many other optional arguments aren't mentioned here, which can be added later when necessitated by the application
+     * @param asUser Boolean value denoting if the message should be posted as the bot user / on behalf of the client
+     * @return Response returned from slack converted to JSON node
+     */
+    @Override
+    public ObjectNode postMessage(ObjectNode payload, Boolean asUser) {
+        try {
+            logger.debug("Triggering action to post message ...");
+            ObjectNode respNode;
+            payload.put("asUser", asUser);
+            logger.debug(payload.toPrettyString());
+            String token = asUser ? this.clientToken : this.botToken;
+            Map<String, String> headers = HttpUtils.getCommonHeaders();
+            headers.put("Authorization", "Bearer "+token);
+            String response = HttpUtils.post(Constants.SLACK_POST_MESSAGE_URL, String.valueOf(payload), headers);
+            logger.info("Response received from slack after posting message");
+            respNode = (ObjectNode) new ObjectMapper().readTree(response);
+            if(!respNode.get("ok").booleanValue()) {
+                respNode.put("details", Constants.SLACK_MESSAGE_ERROR_MAP.get(respNode.get("error").textValue()));
+                logger.error("Error triggering action to post message! "+respNode.get("error"));
+            }
+            return respNode;
+        } catch (JsonProcessingException e) {
+            logger.error("Error triggering action to post message! 500");
+            throw new RuntimeException(e);
         }
     }
 
@@ -178,6 +213,7 @@ public class SlackServiceImpl implements SlackService {
 
 
     /**
+     * Utility method to verify if the event/message/command originated from Slack
      * @param request HttpServletRequest with the headers to validate authenticity of request
      * @return Boolean true/false denoting the validity
      */

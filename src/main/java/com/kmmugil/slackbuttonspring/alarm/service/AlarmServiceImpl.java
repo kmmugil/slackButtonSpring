@@ -2,11 +2,10 @@ package com.kmmugil.slackbuttonspring.alarm.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.kmmugil.slackbuttonspring.slack.dto.SlackAlertAttachment;
+import com.kmmugil.slackbuttonspring.slack.dto.SlackAlert;
 import com.kmmugil.slackbuttonspring.slack.service.SlackService;
 import com.kmmugil.slackbuttonspring.utils.dto.DefaultResponse;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class AlarmServiceImpl implements AlarmService {
         try {
             assert respNode != null;
             logger.debug(respNode.toPrettyString());
-        } catch(AssertionError e) {
+        } catch(RuntimeException | AssertionError e) {
             logger.error("INTERNAL_SERVER_ERROR");
             return ResponseEntity.ok(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
         }
@@ -51,7 +50,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public ResponseEntity<?> triggerProcessorAlarm(String curr_percent, String threshold_percent, String time, String instanceName, String ipAddress) {
         try {
-            SlackAlertAttachment slackAlertAttachment = new SlackAlertAttachment(null);
+            SlackAlert slackAlertAttachment = new SlackAlert(null, null);
             slackAlertAttachment.composeProcessorAlert(curr_percent, threshold_percent, time, instanceName, ipAddress);
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -68,7 +67,7 @@ public class AlarmServiceImpl implements AlarmService {
                 return ResponseEntity.ok(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
             }
             return ResponseEntity.ok(respNode);
-        } catch (JsonProcessingException e) {
+        } catch (RuntimeException | JsonProcessingException e) {
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
         }

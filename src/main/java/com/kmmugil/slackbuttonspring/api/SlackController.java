@@ -1,7 +1,12 @@
 package com.kmmugil.slackbuttonspring.api;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kmmugil.slackbuttonspring.slack.msgUtils.*;
+import com.kmmugil.slackbuttonspring.slack.msgUtils.enums.TextType;
 import com.kmmugil.slackbuttonspring.slack.service.SlackService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController(value = "SlackController")
 @RequestMapping(value = "/api/slack")
@@ -64,6 +71,20 @@ public class SlackController {
     public ResponseEntity<?> slackEventReceiver(@RequestBody String requestBody, HttpServletRequest request, HttpServletResponse response) {
         logger.info("Event received from slack ...");
         return slackService.handleEvents(requestBody, request, response);
+    }
+
+    @GetMapping("/post/message/default")
+    public ResponseEntity<?> slackPostDefaultMessage(@RequestParam(name = "text") String text) throws JsonProcessingException {
+        logger.debug("Request to trigger action to post default message to slack channel received");
+        SectionBlock sectionBlock = new SectionBlock(new TextObject(TextType.mrkdwn, "> Hello :zap:"));
+        Message message = new Message("C03K4Q3E1S9", text);
+        message.createBlocks();
+        message.insertBlock(sectionBlock);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ObjectNode payload = (ObjectNode) objectMapper.readTree(objectMapper.writeValueAsString(message));
+        ObjectNode respNode = this.slackService.postMessage(payload, false);
+        return ResponseEntity.status(HttpStatus.OK).body(respNode);
     }
 
 }

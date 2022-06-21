@@ -90,6 +90,7 @@ public class HttpUtils {
         try {
             logger.info("***url******" + url);
             logger.info("***body******" + body);
+            logger.debug("***headers*******" + headers);
 
             // establish connection
             URL u = new URL(url);
@@ -130,6 +131,7 @@ public class HttpUtils {
             assert headers != null;
             headers.clear();
             Map<String, List<String>> map = conn.getHeaderFields();
+            logger.debug("***headers*******" + map);
             for (Map.Entry<String, List<String>> entry : map.entrySet()) {
                 if(entry.getKey() != null)
                     headers.put(entry.getKey().toLowerCase(), String.join(",", entry.getValue()));

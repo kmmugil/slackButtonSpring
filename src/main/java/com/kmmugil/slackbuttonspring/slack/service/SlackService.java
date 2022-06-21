@@ -15,6 +15,8 @@ public interface SlackService {
 
     ObjectNode triggerIncomingWebhook(String url, ObjectNode payload);
 
+    ObjectNode postMessage(ObjectNode payload, Boolean asUser);
+
     ResponseEntity<?> handleEvents(String requestBody, HttpServletRequest request, HttpServletResponse response);
 
 //    JsonNode sendMessageAsBot(String channel, String workspace, ObjectNode payload);
