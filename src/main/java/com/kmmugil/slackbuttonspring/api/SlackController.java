@@ -41,27 +41,34 @@ public class SlackController {
     public ResponseEntity<?> slackOAuthRedirect(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(required = false, name =
             "error") String error) {
         try {
-            ObjectNode respNode = JsonNodeFactory.instance.objectNode();
             logger.debug("Checking if user denied access ...");
             if(error != null && error.equalsIgnoreCase("access_denied")) {
                 logger.error("User denied request for OAuth permission, terminating slack integration ...");
-                respNode.put("status", HttpStatus.FORBIDDEN.value());
-                respNode.put("message", "User Access Denied");
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(respNode);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultResponse(HttpStatus.FORBIDDEN.value(), "User denied access"));
             }
             logger.info("User OAuth access granted for slack app");
             logger.debug("Validating slack OAuth response state ...");
             assert this.state != null;
             if(!this.state.equals(state)) {
-                respNode.put("status", HttpStatus.BAD_REQUEST.value());
-                respNode.put("message", "Malicious request, invalid state");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respNode);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "Malicious request, invalid state"));
             }
             logger.info("Slack OAuth response state matched, valid redirect.");
             return this.slackService.handleOAuthFlow(code);
         } catch(Exception e) {
             logger.error(e.getMessage(), e);
             return ResponseEntity.internalServerError().body(null);
+        }
+    }
+
+    @GetMapping("/get/bot/info")
+    public ResponseEntity<?> slackGetBotInfo(@RequestParam(name = "bot_token", required = false) String botToken,
+                                             @RequestParam(name = "bot_id", required = false) String botId, @RequestParam(name = "team_id", required = false) String teamId) {
+        try {
+            logger.debug("Request received to fetch bot info ...");
+            return ResponseEntity.ok(this.slackService.getBotInfo(botToken, botId, teamId));
+        } catch(RuntimeException e) {
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DefaultResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "INTERNAL_SERVER_ERROR"));
         }
     }
 

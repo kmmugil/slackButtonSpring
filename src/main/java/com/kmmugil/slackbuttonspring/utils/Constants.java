@@ -15,6 +15,12 @@ public class Constants {
 
     public static final String SLACK_OAUTH_V2_ACCESS_URL = "https://slack.com/api/oauth.v2.access";
 
+    public static final String SLACK_BOT_INFO_URL = "https://slack.com/api/bots.info";
+
+    public static final String SLACK_USERS_LIST_URL = "https://slack.com/api/users.list";
+
+    public static final String SLACK_AUTH_TEST_URL = "https://slack.com/api/auth.test";
+
     public static final String SLACK_POST_MESSAGE_URL = "https://slack.com/api/chat.postMessage";
 
     public static final String SLACK_APP_UNINSTALL_URL = "https://slack.com/api/apps.uninstall";
@@ -160,5 +166,52 @@ public class Constants {
                 "before the error was raised.");
         put("internal_error", "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some " +
                 "aspect of the operation succeeded before the error was raised.");
+    }};
+
+    public static Map<String, String> SLACK_BOT_INFO_ERROR_MAP = new HashMap<String, String>() {{
+        put("bot_not_found", "Value passed for bot was invalid.");
+        put("bots_not_found", "At least one value passed for bots was invalid.");
+        put("missing_argument", "A required argument is missing.");
+        put("not_authed", "No authentication token provided.");
+        put("invalid_auth", "Some aspect of authentication cannot be validated. Either the provided token is invalid or the request originates from an IP address disallowed " +
+                "from making the request.");
+        put( "access_denied", "Access to a resource specified in the request is denied.");
+        put("account_inactive", "Authentication token is for a deleted user or workspace when using a bot token.");
+        put("token_revoked", "Authentication token is for a deleted user or workspace or the app has been removed when using a user token.");
+        put("token_expired", "Authentication token has expired");
+        put("no_permission", "The workspace token used in this request does not have the permissions necessary to complete the request. Make sure your app is a member of the " +
+                "conversation it's attempting to post a message to.");
+        put("org_login_required", "The workspace is undergoing an enterprise migration and will not be available until migration is complete.");
+        put("ekm_access_denied", "Administrators have suspended the ability to post a message.");
+        put("missing_scope", "The token used is not granted the specific scope permissions required to complete this request.");
+        put("not_allowed_token_type", "The token type used in this request is not allowed.");
+        put("method_deprecated", "The method has been deprecated.");
+        put("deprecated_endpoint", "The endpoint has been deprecated.");
+        put("two_factor_setup_required", "Two factor setup is required.");
+        put("enterprise_is_restricted", "The method cannot be called from an Enterprise.");
+        put("team_access_not_granted", "The token used is not granted the specific workspace access required to complete this request.");
+        put("invalid_arguments", "The method was either called with invalid arguments or some detail about the arguments passed are invalid, which is more likely when " +
+                "using complex arguments like blocks or attachments.");
+        put("invalid_arg_name", "The method was passed an argument whose name falls outside the bounds of accepted or expected values. This includes very long names and " +
+                "names with non-alphanumeric characters other than _. If you get this error, it is typically an indication that you have made a very malformed API call.");
+        put("invalid_array_arg", "The method was passed an array as an argument. Please only input valid strings.");
+        put("invalid_charset", "The method was called via a POST request, but the charset specified in the Content-Type header was invalid. Valid charset names are: utf-8" +
+                " iso-8859-1.");
+        put("invalid_form_data", "The method was called via a POST request with Content-Type application/x-www-form-urlencoded or multipart/form-data, but the form data was " +
+                "either missing or syntactically invalid.");
+        put("invalid_post_type", "The method was called via a POST request, but the specified Content-Type was invalid. Valid types are: application/json " +
+                "application/x-www-form-urlencoded multipart/form-data text/plain.");
+        put("missing_post_type", "The method was called via a POST request and included a data payload, but the request did not include a Content-Type header.");
+        put("team_added_to_org", "The workspace associated with your request is currently undergoing migration to an Enterprise Organization. Web API and other platform " +
+                "operations will be intermittently unavailable until the transition is complete.");
+        put("ratelimited", "The request has been ratelimited. Refer to the Retry-After header for when to retry the request.");
+        put("accesslimited", "Access to this method is limited on the current network");
+        put("request_timeout", "The method was called via a POST request, but the POST data was either missing or truncated.");
+        put("service_unavailable", "The service is temporarily unavailable");
+        put("fatal_error", "The server could not complete your operation(s) without encountering a catastrophic error. It's possible some aspect of the operation " +
+                "succeeded before the error was raised.");
+        put("internal_error", "The server could not complete your operation(s) without encountering an error, likely due to a transient issue on our end. It's possible some " +
+                "aspect of the operation succeeded before the error was raised.");
+
     }};
 }

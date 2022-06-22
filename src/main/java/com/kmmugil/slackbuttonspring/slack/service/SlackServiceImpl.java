@@ -94,13 +94,40 @@ public class SlackServiceImpl implements SlackService {
             String formEncodedPayload = HttpUtils.getFormEncodedString(objectMapper.convertValue(payload, new TypeReference<Map<String, String>>(){}));
             Map<String, String> headers = HttpUtils.getSlackOAuthHeaders();
             headers.put("Content-Length", String.valueOf(formEncodedPayload.length()));
-            logger.debug(formEncodedPayload);
             logger.debug("Sending exchange request for access token ...");
             String response = HttpUtils.post(Constants.SLACK_OAUTH_V2_ACCESS_URL, formEncodedPayload, headers);
             logger.info("Response received for exchange request");
             return (ObjectNode) objectMapper.readTree(response);
         } catch (JsonProcessingException e) {
             logger.error("Error while obtaining access token from slack OAuth exchange ...");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ObjectNode getBotInfo(String botToken, String botId, String teamId) {
+        try {
+            logger.debug("Generating form-encoded payload for bot info request ...");
+            botToken = botToken == null ? this.botToken : botToken;
+            Map<String, String> payload = new HashMap<>();
+            if(botId != null) payload.put("bot", botId);
+            if(teamId != null) payload.put("team_id", teamId);
+            logger.debug(String.valueOf(payload));
+            String formEncodedPayload = HttpUtils.getFormEncodedString(payload);
+            Map<String, String> headers = HttpUtils.getSlackOAuthHeaders();
+            headers.put("Content-Length", String.valueOf(formEncodedPayload.length()));
+            headers.put("Authorization", "Bearer " + botToken);
+            String url = formEncodedPayload.length() == 0 ? Constants.SLACK_BOT_INFO_URL : Constants.SLACK_BOT_INFO_URL+"?"+formEncodedPayload;
+            String response = HttpUtils.get(url, headers);
+            logger.info("Response received from slack for bot info");
+            ObjectNode respNode = (ObjectNode) new ObjectMapper().readTree(response);
+            if(!respNode.get("ok").booleanValue()) {
+                logger.error("Error getting bot info from slack: "+respNode.get("error").textValue());
+                respNode.put("details", Constants.SLACK_BOT_INFO_ERROR_MAP.get(respNode.get("error").textValue()));
+            }
+            return respNode;
+        } catch (JsonProcessingException e) {
+            logger.error("Error while getting bot info: 500");
             throw new RuntimeException(e);
         }
     }

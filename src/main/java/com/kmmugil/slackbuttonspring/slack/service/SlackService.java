@@ -13,6 +13,8 @@ public interface SlackService {
 
     ObjectNode getAccessToken(String code);
 
+    ObjectNode getBotInfo(String botToken, String botId, String teamId);
+
     ObjectNode triggerIncomingWebhook(String url, ObjectNode payload);
 
     ObjectNode postMessage(ObjectNode payload, Boolean asUser);
