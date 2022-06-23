@@ -38,8 +38,9 @@ public class SlackController {
     }
 
     @GetMapping("/redirect")
-    public ResponseEntity<?> slackOAuthRedirect(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(required = false, name =
-            "error") String error, HttpServletResponse response) {
+    public ResponseEntity<?> slackOAuthRedirect(@RequestParam(name = "code", required = false) String code, @RequestParam(name = "state", required = false) String state,
+                                                @RequestParam(required = false,
+            name = "error") String error, HttpServletResponse response) {
         try {
             logger.debug("Checking if user denied access ...");
             if(error != null && error.equalsIgnoreCase("access_denied")) {
