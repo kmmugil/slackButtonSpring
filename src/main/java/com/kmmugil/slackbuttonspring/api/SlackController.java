@@ -43,6 +43,7 @@ public class SlackController {
             name = "error") String error, HttpServletResponse response) {
         try {
             logger.debug("Checking if user denied access ...");
+            response.sendRedirect("https://www.idrivecompute.com");
             if(error != null && error.equalsIgnoreCase("access_denied")) {
                 logger.error("User denied request for OAuth permission, terminating slack integration ...");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DefaultResponse(HttpStatus.FORBIDDEN.value(), "User denied access"));
@@ -54,7 +55,6 @@ public class SlackController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new DefaultResponse(HttpStatus.BAD_REQUEST.value(), "Malicious request, invalid state"));
             }
             logger.info("Slack OAuth response state matched, valid redirect.");
-            response.sendRedirect("https://www.idrivecompute.com");
             return this.slackService.handleOAuthFlow(code);
         } catch(Exception e) {
             logger.error(e.getMessage(), e);
